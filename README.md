@@ -1,6 +1,8 @@
-# utk19rsh
+# Restaurant App
 
-A new Flutter project.
+Cross-platform application for individual food-joints/restaurant. 
+Flutter SDK v3.3.1
+
 
 ## Getting Started
 
