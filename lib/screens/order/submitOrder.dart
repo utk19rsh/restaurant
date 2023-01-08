@@ -99,199 +99,211 @@ class _SubmitOrderState extends State<SubmitOrder> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (FirebaseAuth.instance.currentUser == null)
-                  GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (builder) => const Inception(),
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 15),
-                      child: Container(
-                        width: infinity,
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: white,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: const [
-                            Text(
-                              "Please login to place an order",
-                              style: TextStyle(
-                                fontSize: 18,
-                                letterSpacing: 1,
-                                color: red,
-                              ),
-                            ),
-                            Icon(MdiIcons.chevronRight, color: red)
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 12, 12, 5),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(MdiIcons.mapMarker, color: theme),
-                          const SizedBox(width: 5),
-                          RichText(
-                            text: const TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: "Delivery at : ",
-                                  style: TextStyle(
-                                    color: black,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: "Home",
-                                  style: TextStyle(
-                                    color: black,
-                                    fontSize: 17,
-                                    letterSpacing: 0.5,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                      const Padding(
-                        padding: EdgeInsets.only(right: 10),
-                        child: Text(
-                          "Change",
-                          style: TextStyle(
-                            color: theme,
-                            fontSize: 17,
-                            letterSpacing: 0.5,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                  loginAlert(context),
+                deliveryAt(),
                 const Divider(),
-                Container(
-                  margin: EdgeInsets.fromLTRB(
-                    15,
-                    5,
-                    15,
-                    15 + MediaQuery.of(context).viewInsets.bottom,
-                  ),
-                  padding: const EdgeInsets.fromLTRB(20, 10, 10, 10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12.5),
-                    color: theme.withOpacity(1),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Consumer<CartProvider>(builder: (context, value, child) {
-                        int cartAmount = value.cartAmount;
-                        int total = (cartAmount + (cartAmount * 0.12)).toInt();
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              indentCost(total),
-                              style: const TextStyle(
-                                color: white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 18,
-                                letterSpacing: 2,
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            const Text(
-                              "TOTAL",
-                              style: TextStyle(
-                                color: white,
-                                letterSpacing: 1,
-                              ),
-                            )
-                          ],
-                        );
-                      }),
-                      GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () async {
-                          if (FirebaseAuth.instance.currentUser != null &&
-                              pref.getString("uID") != null) {
-                            List<String> items = Provider.of<CartProvider>(
-                              context,
-                              listen: false,
-                            ).cart.keys.toList();
-                            List<int> prices = Provider.of<CartProvider>(
-                                  context,
-                                  listen: false,
-                                ).cart.values.toList(),
-                                quantities = Provider.of<CartProvider>(
-                                  context,
-                                  listen: false,
-                                ).cart.values.toList();
-                            DateTime now = DateTime.now();
-                            await FirebaseFirestore.instance
-                                .collection("AllOrders")
-                                .doc(getDocId(time: now))
-                                .set({
-                              "items": items,
-                              "prices": prices,
-                              "quantities": quantities,
-                              "createdAt": now,
-                              "uID": uID,
-                            });
-                            if (mounted) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (builder) => const PostSubmit(),
-                                ),
-                              );
-                            }
-                          } else {
-                            buildSnackBar(context, "Please login");
-                          }
-                        },
-                        child: Row(
-                          children: const [
-                            Text(
-                              "PAY NOW",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 1,
-                                color: white,
-                              ),
-                            ),
-                            SizedBox(width: 2.5),
-                            Icon(
-                              MdiIcons.menuRight,
-                              color: white,
-                              size: 28,
-                            )
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ),
+                paymentButton(context),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Container paymentButton(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.fromLTRB(
+        15,
+        5,
+        15,
+        15 + MediaQuery.of(context).viewInsets.bottom,
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 10, 10, 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.5),
+        color: theme.withOpacity(1),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Consumer<CartProvider>(builder: (context, value, child) {
+            int cartAmount = value.cartAmount;
+            int total = (cartAmount + (cartAmount * 0.12)).toInt();
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  indentCost(total),
+                  style: const TextStyle(
+                    color: white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 18,
+                    letterSpacing: 2,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                const Text(
+                  "TOTAL",
+                  style: TextStyle(
+                    color: white,
+                    letterSpacing: 1,
+                  ),
+                )
+              ],
+            );
+          }),
+          GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () async {
+              if (FirebaseAuth.instance.currentUser != null &&
+                  pref.getString("uID") != null) {
+                List<String> items = Provider.of<CartProvider>(
+                  context,
+                  listen: false,
+                ).cart.keys.toList();
+                List<int> prices = Provider.of<CartProvider>(
+                      context,
+                      listen: false,
+                    ).cart.values.toList(),
+                    quantities = Provider.of<CartProvider>(
+                      context,
+                      listen: false,
+                    ).cart.values.toList();
+                DateTime now = DateTime.now();
+                await FirebaseFirestore.instance
+                    .collection("AllOrders")
+                    .doc(getDocId(time: now))
+                    .set({
+                  "items": items,
+                  "prices": prices,
+                  "quantities": quantities,
+                  "createdAt": now,
+                  "uID": uID,
+                });
+                if (mounted) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (builder) => const PostSubmit(),
+                    ),
+                  );
+                }
+              } else {
+                buildSnackBar(context, "Please login");
+              }
+            },
+            child: Row(
+              children: const [
+                Text(
+                  "PAY NOW",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1,
+                    color: white,
+                  ),
+                ),
+                SizedBox(width: 2.5),
+                Icon(
+                  MdiIcons.menuRight,
+                  color: white,
+                  size: 28,
+                )
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Padding deliveryAt() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              const Icon(MdiIcons.mapMarker, color: theme),
+              const SizedBox(width: 5),
+              RichText(
+                text: const TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "Delivery at : ",
+                      style: TextStyle(
+                        color: black,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    TextSpan(
+                      text: "Home",
+                      style: TextStyle(
+                        color: black,
+                        fontSize: 17,
+                        letterSpacing: 0.5,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+          const Padding(
+            padding: EdgeInsets.only(right: 10),
+            child: Text(
+              "Change",
+              style: TextStyle(
+                color: theme,
+                fontSize: 17,
+                letterSpacing: 0.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  GestureDetector loginAlert(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (builder) => const Inception(),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 15),
+        child: Container(
+          width: infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: white,
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: const [
+              Text(
+                "Please login to place an order",
+                style: TextStyle(
+                  fontSize: 18,
+                  letterSpacing: 1,
+                  color: red,
+                ),
+              ),
+              Icon(MdiIcons.chevronRight, color: red)
+            ],
+          ),
+        ),
       ),
     );
   }
