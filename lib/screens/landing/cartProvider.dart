@@ -2,6 +2,8 @@ import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:vibration/vibration.dart';
 
 class CartProvider extends ChangeNotifier {
   Map<String, int> cart = {};
@@ -43,6 +45,7 @@ class CartProvider extends ChangeNotifier {
     quantity.addAll({key: 1});
     cartAmount += value;
     notifyListeners();
+    Vibration.vibrate(duration: 100);
   }
 
   removeItem(String key, int value) {
@@ -50,6 +53,7 @@ class CartProvider extends ChangeNotifier {
     cart.removeWhere((k, v) => k == key);
     quantity.removeWhere((k, v) => k == key);
     notifyListeners();
+    Vibration.vibrate(duration: 100);
   }
 
   increaseQuantity(String key, int value) {
@@ -57,6 +61,7 @@ class CartProvider extends ChangeNotifier {
     quantity.update(key, (v) => ++v);
     cartAmount += value;
     notifyListeners();
+    Vibration.vibrate(duration: 100);
   }
 
   decreaseQuantity(String key, int value) {
@@ -64,5 +69,6 @@ class CartProvider extends ChangeNotifier {
     quantity.update(key, (v) => --v);
     cartAmount -= value;
     notifyListeners();
+    Vibration.vibrate(duration: 100);
   }
 }
