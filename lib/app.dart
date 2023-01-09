@@ -43,11 +43,6 @@ class _MyAppState extends State<MyApp> {
             letterSpacing: 1,
           ),
         ),
-        pageTransitionsTheme: const PageTransitionsTheme(
-          builders: {
-            TargetPlatform.windows: FadeUpwardsPageTransitionsBuilder(),
-          },
-        ),
         textSelectionTheme: const TextSelectionThemeData(cursorColor: theme),
       ),
       home: const SplashScreen(),
